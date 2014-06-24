@@ -1,3 +1,4 @@
+// Package linode provides a basic Client for interacting with the Linode API. It automatically batches requests.
 package linode
 
 import (
@@ -11,7 +12,7 @@ import (
 
 const (
 	apiEndpoint      = "https://api.linode.com/"
-	maxBatchRequests = 24
+	maxBatchRequests = 24 // undocumented in Linode API docs
 )
 
 var apiEndpointURL *url.URL
@@ -26,24 +27,26 @@ func NewClient(apiKey string) *Client {
 	return &Client{apiKey: apiKey}
 }
 
+// Client used to make API requests
 type Client struct {
 	apiKey string
 }
 
-func (c *Client) NewRequest() *request {
-	return &request{client: *c}
+// NewRequest creates a Request object
+func (c *Client) NewRequest() *Request {
+	return &Request{client: *c}
 }
 
-type request struct {
+// Request holds one or multiple API requests, which will be batched together when calling GetJSON.
+type Request struct {
 	client  Client
 	actions []action
 }
 
 type action map[string]string
 
-// AddActions adds an API action to the request. This corresponds to the 'api_action' parameter.
-// The returned object can be modified to include additional API parameters. See #Set.
-func (r *request) AddAction(method string, params map[string]string) *request {
+// AddAction adds an API action to the request. This corresponds to the 'api_action' parameter.
+func (r *Request) AddAction(method string, params map[string]string) *Request {
 	var a action
 	if params == nil {
 		a = make(action)
@@ -55,7 +58,8 @@ func (r *request) AddAction(method string, params map[string]string) *request {
 	return r
 }
 
-func (r *request) URLs() ([]string, error) {
+// URLs returns a slice of urls which hold the created actions and their params. Multiple urls may be returned if the batch limit is reached.
+func (r *Request) URLs() ([]string, error) {
 	numActions := len(r.actions)
 	if numActions == 0 {
 		return []string{}, nil
@@ -87,13 +91,15 @@ func (r *request) URLs() ([]string, error) {
 	return urls, nil
 }
 
-type response struct {
+// Response contains the 'ACTION' and raw 'DATA' params included in a batch response
+type Response struct {
 	Action string
 	Data   json.RawMessage
 }
 
-func (r *request) GetJSON() ([]response, error) {
-	var responses []response
+// GetJSON performs one or more HTTP GET requests and returns a slice of Response objects and possible error
+func (r *Request) GetJSON() ([]Response, error) {
+	var responses []Response
 	var errs []error
 
 	urls, err := r.URLs()
@@ -113,7 +119,7 @@ func (r *request) GetJSON() ([]response, error) {
 	return responses, nil
 }
 
-func getJSON(u string, responses []response, errs []error) ([]response, []error) {
+func getJSON(u string, responses []Response, errs []error) ([]Response, []error) {
 	resp, err := http.Get(u)
 	if err != nil {
 		errs = append(errs, err)
@@ -141,11 +147,12 @@ func getJSON(u string, responses []response, errs []error) ([]response, []error)
 			}
 			continue
 		}
-		responses = append(responses, response{Action: r.Action, Data: r.Data})
+		responses = append(responses, Response{Action: r.Action, Data: r.Data})
 	}
 	return responses, errs
 }
 
+// responseJSON represents the JSON returned by the API
 type responseJSON struct {
 	Action string `json:"ACTION"`
 	Errors []struct {

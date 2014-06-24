@@ -138,7 +138,7 @@ func newTestServer(status int, response string) *httptest.Server {
 
 func TestGetJSONWithJSONError(t *testing.T) {
 	server := newTestServer(200, `[{"ERRORARRAY":[{"ERRORCODE":11,"ERRORMESSAGE":"RequestArray isn't valid JSON or WDDX"}],"DATA":{},"ACTION":"batch"}]`)
-	var responses []response
+	var responses []Response
 	var errors []error
 
 	responses, errors = getJSON(server.URL, responses, errors)
@@ -158,7 +158,7 @@ func TestGetJSONWithJSONError(t *testing.T) {
 
 func TestGetJSONWithJSONData(t *testing.T) {
 	server := newTestServer(200, `[{"ERRORARRAY":[],"DATA":[{"ALERT_CPU_ENABLED":1,"ALERT_BWIN_ENABLED":1}],"ACTION":"linode.test"}]`)
-	var responses []response
+	var responses []Response
 	var errors []error
 
 	responses, errors = getJSON(server.URL, responses, errors)
@@ -193,7 +193,7 @@ func TestGetJSONWithJSONData(t *testing.T) {
 
 func TestGetJSONWithJSONMultipleData(t *testing.T) {
 	server := newTestServer(200, `[{"ERRORARRAY":[],"DATA":{},"ACTION":"test.echo"},{"ERRORARRAY":[],"DATA":[{"LOCATION":"Dallas, TX, USA","DATACENTERID":2,"ABBR":"dallas"},{"LOCATION":"Fremont, CA, USA","DATACENTERID":3,"ABBR":"fremont"}],"ACTION":"avail.datacenters"}]`)
-	var responses []response
+	var responses []Response
 	var errors []error
 
 	responses, errors = getJSON(server.URL, responses, errors)
@@ -231,7 +231,7 @@ func TestGetJSONWithJSONMultipleData(t *testing.T) {
 
 func TestGetJSONWithNon200(t *testing.T) {
 	server := newTestServer(500, `[{"ERRORARRAY":[],"DATA":{},"ACTION":""}]`)
-	var responses []response
+	var responses []Response
 	var errors []error
 
 	responses, errors = getJSON(server.URL, responses, errors)
@@ -243,7 +243,7 @@ func TestGetJSONWithNon200(t *testing.T) {
 
 func TestGetJSONWithInvalidJSON(t *testing.T) {
 	server := newTestServer(200, `i am no json`)
-	var responses []response
+	var responses []Response
 	var errors []error
 
 	responses, errors = getJSON(server.URL, responses, errors)
