@@ -1,7 +1,7 @@
 linode
 ======
 
-`go` package for interacting with the Linode API
+go package for interacting with the Linode API. Automatically batches requests.
 
 As of now, it only supports two API methods: 
 
