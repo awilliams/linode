@@ -3,6 +3,8 @@ linode
 
 go package for interacting with the Linode API. Automatically batches requests.
 
+[GoDoc](http://godoc.org/github.com/awilliams/linode)
+
 As of now, it only supports two API methods: 
 
  * [linode.list()](https://www.linode.com/api/linode/linode.list)
