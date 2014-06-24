@@ -45,7 +45,7 @@ type Request struct {
 
 type action map[string]string
 
-// AddAction adds an API action to the request. This corresponds to the 'api_action' parameter.
+// AddAction adds an API action to the request. method arg corresponds to the 'api_action' parameter. Returns r for chainability.
 func (r *Request) AddAction(method string, params map[string]string) *Request {
 	var a action
 	if params == nil {
