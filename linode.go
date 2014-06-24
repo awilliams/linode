@@ -12,6 +12,7 @@ const (
 	linodeIPListAction = "linode.ip.list"
 )
 
+// LinodeList returns slice of Linodes
 func (c *Client) LinodeList() ([]Linode, error) {
 	req := c.NewRequest().AddAction(linodeListAction, nil)
 	var err error
@@ -36,6 +37,7 @@ func (c *Client) LinodeList() ([]Linode, error) {
 	return []Linode(linodes), nil
 }
 
+// LinodeIPList returns mapping of LinodeID to slice of its LinodeIPs
 func (c *Client) LinodeIPList(linodeIDs []int) (map[int][]LinodeIP, error) {
 	req := c.NewRequest()
 	var err error
@@ -68,6 +70,7 @@ func (c *Client) LinodeIPList(linodeIDs []int) (map[int][]LinodeIP, error) {
 	return m, nil
 }
 
+// Linode represent a Linode as returned by the API
 type Linode struct {
 	ID           int    `json:"LINODEID"`
 	Status       int    `json:"STATUS"`
@@ -76,16 +79,19 @@ type Linode struct {
 	RAM          int    `json:"TOTALRAM"`
 }
 
+// IsRunning returns true if Status == 1
 func (l Linode) IsRunning() bool {
 	return l.Status == 1
 }
 
+// LinodeIP respresents a Linode.IP as returned by the API
 type LinodeIP struct {
 	LinodeID int    `json:"LINODEID"`
 	Public   int    `json:"ISPUBLIC"`
 	IP       string `json:"IPADDRESS"`
 }
 
+// IsPublic returns true if IP is public
 func (i LinodeIP) IsPublic() bool {
 	return i.Public == 1
 }
@@ -117,7 +123,6 @@ func (sorted sortedLinodes) Swap(i, j int) {
 func (sorted sortedLinodes) Less(i, j int) bool {
 	if sorted[i].DisplayGroup == sorted[j].DisplayGroup {
 		return sorted[i].Label < sorted[j].Label
-	} else {
-		return sorted[i].DisplayGroup < sorted[j].DisplayGroup
 	}
+	return sorted[i].DisplayGroup < sorted[j].DisplayGroup
 }
